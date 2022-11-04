@@ -33,8 +33,7 @@ class AirbnbCABATransformer(BaseEstimator, TransformerMixin):
         
         return data
 
-    def _dropNotUsedColumns(self,data):
-        
+    def _dropNotUsedColumns(self,data):        
         data = data.drop(['id'], axis=1)
         data = data.drop(['source'], axis=1)
         data = data.drop(['availability_30','availability_60','availability_90','availability_365','listing_url','scrape_id','last_scraped','picture_url','host_id','host_url','host_name'], axis=1)
@@ -129,6 +128,8 @@ class AirbnbCABATransformer(BaseEstimator, TransformerMixin):
         data.loc[data["property_type"].str.contains("Cave|Shared room in ryokan|loft|apartment|dept|condo|floor|rental unit|Entire in-law|Entire guest suite|Private room in guest suite|Private room",case=False,na=False),"property_type"] = "Apartment"
         data.loc[data["property_type"].str.contains("Pension|hostel|hotel|bed and breakfast|resort",case=False,na=False),"property_type"] = "Hotel"
         data.loc[~data.property_type.isin(['House', 'Apartment','Hotel']), 'property_type'] = 'Other'
+        data = data.loc[data.property_type != "Hotel"]
+        data = data.loc[data.property_type != "Other"]
         return data
     
     def _findOutliers(self,df, column, limit=4):
