@@ -35,7 +35,7 @@ class AirbnbCABATransformer(BaseEstimator, TransformerMixin):
 
     def _dropNotUsedColumns(self,data):        
         data = data.drop(['id'], axis=1)
-        data = data.drop(['source'], axis=1)
+        data = data.drop(['source','instant_bookable'], axis=1)
         data = data.drop(['availability_30','availability_60','availability_90','availability_365','listing_url','scrape_id','last_scraped','picture_url','host_id','host_url','host_name'], axis=1)
         data = data.drop(['host_location','host_neighbourhood','reviews_per_month','neighborhood_overview','neighbourhood','neighbourhood_group_cleansed'], axis=1)
         data = data.drop(['host_has_profile_pic','host_response_rate','host_thumbnail_url','host_about','host_response_time','host_response_rate','host_acceptance_rate','host_thumbnail_url'], axis=1)
@@ -151,15 +151,12 @@ class AirbnbCABATransformer(BaseEstimator, TransformerMixin):
 
     def _processOutLiers(self,data):
         # quitar outliers de precios
-        data = data[np.logical_not(self._findOutliers(data, 'price',limit=8))]
+        data = data[np.logical_not(self._findOutliers(data, 'price',limit=2))]
         # quitar outliers de baños
-        data = data[np.logical_not(self._findOutliers(data, 'bathrooms',limit=6))]
-
-        # quitamos outliers de camas
-        data = data[np.logical_not(self._findOutliers(data, 'beds',limit=6))]
-
-        # quitamos outliers de noches minimas
-        data = data[np.logical_not(self._findOutliers(data, 'minimum_nights',limit=14))]
+        data = data[data.bathrooms<5]        
+        # quitamos outliers de habitaciones
+        data = data[data.bedrooms < 6]
+        data = data[np.logical_not(self._findOutliers(data, 'minimum_nights',limit=15))]
 
         return data
     
@@ -190,7 +187,6 @@ class AirbnbCABATransformer(BaseEstimator, TransformerMixin):
        ,{"feature":"essentials","values":["Essentials","Body Soap","soap","shampoo","jabon","Shower gel","Conditioner"]} 
        ,{"feature":"grill","values":["BBQ grill","parrilla","grill","BBQ","asador"]} 
        ,{"feature":"kitchen","values":["Kitchen","Cocina","Cooking basics","Oven"]} 
-       ,{"feature":"long_term_stays_allowed","values":["Long term stays allowed"]}  
        ,{"feature":"heating","values":["Heating"]}
        ,{"feature":"elevator","values":["Elevator","Ascensor","elevador"]}  
        ,{"feature":"refrigerator","values":["Refrigerator"]}
@@ -240,7 +236,6 @@ class AirbnbCABATransformer(BaseEstimator, TransformerMixin):
         data['pet_friendly'] = data['pet_friendly'].astype(int)
         data['kitchen'] = data['kitchen'].astype(int)
         data['grill'] = data['grill'].astype(int)
-        data['long_term_stays_allowed'] = data['long_term_stays_allowed'].astype(int)
         data['heating'] = data['heating'].astype(int)
         data['elevator'] = data['elevator'].astype(int)
         data['refrigerator'] = data['refrigerator'].astype(int)
@@ -250,7 +245,7 @@ class AirbnbCABATransformer(BaseEstimator, TransformerMixin):
         return data
 
     def _processGetdummies(self,data):
-        data = pd.get_dummies(data,drop_first=True)
+        data = pd.get_dummies(data)
         return data
 
         
