@@ -38,11 +38,11 @@ class AirbnbCABATransformer(BaseEstimator, TransformerMixin):
         data = data.drop(['source'], axis=1)
         data = data.drop(['availability_30','availability_60','availability_90','availability_365','listing_url','scrape_id','last_scraped','picture_url','host_id','host_url','host_name'], axis=1)
         data = data.drop(['host_location','host_neighbourhood','reviews_per_month','neighborhood_overview','neighbourhood','neighbourhood_group_cleansed'], axis=1)
-        data = data.drop(['host_response_rate','host_thumbnail_url','host_about','host_response_time','host_response_rate','host_acceptance_rate','host_thumbnail_url'], axis=1)
+        data = data.drop(['host_has_profile_pic','host_response_rate','host_thumbnail_url','host_about','host_response_time','host_response_rate','host_acceptance_rate','host_thumbnail_url'], axis=1)
         data = data.drop(['host_picture_url','host_listings_count', 'minimum_minimum_nights','maximum_minimum_nights','minimum_maximum_nights','maximum_maximum_nights'], axis=1)
         data = data.drop(['minimum_nights_avg_ntm','maximum_nights_avg_ntm','calendar_updated', 'calendar_last_scraped','has_availability','host_total_listings_count'], axis=1)
-        data = data.drop(['number_of_reviews','number_of_reviews_ltm','number_of_reviews_l30d','first_review','last_review'], axis=1)
-        data = data.drop(['review_scores_rating','review_scores_location','review_scores_accuracy','review_scores_cleanliness'], axis=1)
+        data = data.drop(['number_of_reviews_ltm','number_of_reviews_l30d','first_review','last_review'], axis=1)
+        data = data.drop(['review_scores_location','review_scores_accuracy','review_scores_cleanliness'], axis=1)
         data = data.drop(['review_scores_checkin','review_scores_communication','review_scores_value','license','calculated_host_listings_count','calculated_host_listings_count_entire_homes'], axis=1)
         data = data.drop(['calculated_host_listings_count_private_rooms','calculated_host_listings_count_shared_rooms'], axis=1)
         return data
@@ -130,6 +130,7 @@ class AirbnbCABATransformer(BaseEstimator, TransformerMixin):
         data.loc[~data.property_type.isin(['House', 'Apartment','Hotel']), 'property_type'] = 'Other'
         data = data.loc[data.property_type != "Hotel"]
         data = data.loc[data.property_type != "Other"]
+        data = data.loc[data.room_type != "Hotel room"]
         return data
     
     def _findOutliers(self,df, column, limit=4):
@@ -249,7 +250,7 @@ class AirbnbCABATransformer(BaseEstimator, TransformerMixin):
         return data
 
     def _processGetdummies(self,data):
-        data = pd.get_dummies(data)
+        data = pd.get_dummies(data,drop_first=True)
         return data
 
         
