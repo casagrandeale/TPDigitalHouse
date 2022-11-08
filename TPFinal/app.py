@@ -3,6 +3,8 @@ import streamlit.components.v1 as components
 import joblib
 import shap
 import pandas as pd
+from io import BytesIO
+import requests
 
 loaded_model = None
 datatemplate = None
@@ -21,7 +23,8 @@ def buildBarrios():
 
 def loadModel():
     with st.spinner('Cargando modelo...'):
-        model = joblib.load(filename)
+        mfile = BytesIO(requests.get(filename).content)
+        model = joblib.load(mfile)
         data = pd.read_csv('https://raw.githubusercontent.com/casagrandeale/TPDigitalHouse/main/TPFinal/datatemplate.csv')
         data.drop(['Unnamed: 0','price'],axis=1,inplace=True)
         return model,data    
