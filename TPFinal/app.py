@@ -6,7 +6,7 @@ import pandas as pd
 
 loaded_model = None
 datatemplate = None
-filename = "model.sav"
+filename = "https://raw.githubusercontent.com/casagrandeale/TPDigitalHouse/main/TPFinal/model.sav"
 
 @st.cache
 def buildBarrios():
@@ -22,7 +22,7 @@ def buildBarrios():
 def loadModel():
     with st.spinner('Cargando modelo...'):
         model = joblib.load(filename)
-        data = pd.read_csv('datatemplate.csv')
+        data = pd.read_csv('https://raw.githubusercontent.com/casagrandeale/TPDigitalHouse/main/TPFinal/datatemplate.csv')
         data.drop(['Unnamed: 0','price'],axis=1,inplace=True)
         return model,data    
 
