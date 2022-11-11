@@ -31,6 +31,13 @@ class AirbnbCABATransformer(BaseEstimator, TransformerMixin):
         data = self._processGetdummies(data)
         data = self._convertToInt(data)
         
+        data.columns = data.columns.str.replace('neighbourhood_cleansed_', '')
+        data.columns = data.columns.str.replace('property_type_Apartment', 'Apartment')
+        data.columns = data.columns.str.replace('property_type_House', 'House')
+        data.columns = data.columns.str.replace('room_type_Private room', 'Private room')
+        data.columns = data.columns.str.replace('room_type_Shared room', 'Shared room')
+        data.columns = data.columns.str.replace('room_type_Entire home/apt', 'Entire home/apt')
+        
         return data
 
     def _dropNotUsedColumns(self,data):        
@@ -151,12 +158,12 @@ class AirbnbCABATransformer(BaseEstimator, TransformerMixin):
 
     def _processOutLiers(self,data):
         # quitar outliers de precios
-        data = data[np.logical_not(self._findOutliers(data, 'price',limit=2))]
+        data = data[np.logical_not(self._findOutliers(data, 'price',limit=3))]
         # quitar outliers de baños
-        data = data[data.bathrooms<5]        
+        #data = data[data.bathrooms<5]        
         # quitamos outliers de habitaciones
-        data = data[data.bedrooms < 6]
-        data = data[np.logical_not(self._findOutliers(data, 'minimum_nights',limit=15))]
+        #data = data[data.bedrooms < 6]
+        #data = data[np.logical_not(self._findOutliers(data, 'minimum_nights',limit=15))]
 
         return data
     
@@ -173,12 +180,12 @@ class AirbnbCABATransformer(BaseEstimator, TransformerMixin):
 
     def _processAmenities(self,data):
         amenities = data.amenities.str.replace("[{}]", "").str.replace('"', "").str.replace('\\\\u2013', '-').str.replace('\\\\u2019','´').str.replace('\\\\u00f3','ó').str.replace('\\\\u00e9','é').str.replace('\\\\u00ed','í').str.replace('\\\\u00e1','á').str.replace('\\\\u00b4','').str.replace('\\\\u00f1','ñ').str.replace('\\\\u00a0','').str.replace('{', '').str.replace('}', ',').str.replace('[', '').str.replace(']', ',').str.replace('"', '')
-        dict = [{"feature":"cable","values":["cable tv","TV with standard cable","cable"]}
-       ,{"feature":"air_conditioning","values":["AC - split type ductless system","Air conditioning","aire acondicionado"]}
+        dict = [
+        {"feature":"air_conditioning","values":["AC - split type ductless system","Air conditioning","aire acondicionado"]}
        ,{"feature":"outdoor","values":["Outdoor dining area","Patio or balcony","patio","balcony","jardin","Backyard","Garden","Outdoor","Sun loungers","Terrace"]}
        ,{"feature":"pool","values":["Shared pool","pool","pileta","piscina"]}
        ,{"feature":"parking","values":["Paid parking on premises","Paid parking lot off premises","Paid parking off premises","private parking","estacionamiento","cochera"]}
-       ,{"feature":"tv","values":["tv","HDTV","Smart TV"]}
+       ,{"feature":"tv","values":["tv","HDTV","Smart TV","cable tv","TV with standard cable","cable","standard cable","Netflix"]}
        ,{"feature":"internet","values":["Wifi","High speed cable","internet","Ethernet connection"]}
        ,{"feature":"white_goods","values":["Dryer","Free washer - In unit","Dishwasher","lavaplatos","washer","secarropas","lavavajilla"]}
        ,{"feature":"gym","values":["Exercise equipment","Gym","gimnasio"]}
@@ -221,7 +228,6 @@ class AirbnbCABATransformer(BaseEstimator, TransformerMixin):
         data['host_days_active'] = data['host_days_active'].astype(int)
         data['air_conditioning'] = data['air_conditioning'].astype(int)
         data['beds'] = data['beds'].astype(int)
-        data['cable'] = data['cable'].astype(int)
         data['outdoor'] = data['outdoor'].astype(int)
         data['pool'] = data['pool'].astype(int)
         data['parking'] = data['parking'].astype(int)
