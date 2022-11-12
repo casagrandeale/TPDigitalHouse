@@ -9,6 +9,7 @@ import requests
 loaded_model = None
 datatemplate = None
 filename = "https://raw.githubusercontent.com/casagrandeale/TPDigitalHouse/main/TPFinal/model.sav"
+#filename = "model.sav"
 
 @st.cache
 def buildBarrios():
@@ -25,7 +26,9 @@ def loadModel():
     with st.spinner('Cargando modelo...'):
         mfile = BytesIO(requests.get(filename).content)
         model = joblib.load(mfile)
+        #model = joblib.load(filename)
         data = pd.read_csv('https://raw.githubusercontent.com/casagrandeale/TPDigitalHouse/main/TPFinal/datatemplate.csv')
+        #data = pd.read_csv('datatemplate.csv')
         data.drop(['Unnamed: 0','price'],axis=1,inplace=True)
         return model,data    
 
@@ -36,30 +39,30 @@ def st_shap(plot, height=None):
     shap_html = f"<head>{js}</head><body>{plot.html()}</body>"
     components.html(shap_html, height=height)
 
-def predict(tipo,bathroomType,tipoRoom,bathrooms,rooms,beds,people,minimum_nights,maximum_nights,cabletv,barrio,host_is_superhost,number_of_reviews,host_identity_verified,
-    review_scores_rating,air_conditioning,outdoor,pool,parking,pet_friendly,internet,white_goods,gym,kitchen,refrigerator,dishes_silverware,essentials,grill,email_verification,
-    host_days_active,heating,elevator,freezer,phone_verification,tv):
+def predict(tipo,bathroomType,tipoRoom,bathrooms,rooms,people,minimum_nights,maximum_nights,barrio,host_identity_verified,
+    review_scores_rating,air_conditioning,pool,parking,pet_friendly,internet,gym,grill,
+    elevator,tv):
    
    with st.spinner('Prediciendo...'):
         datatemplate.drop(datatemplate.index, inplace=True)
-        df = datatemplate.append({'property_type_House': 1 if tipo == 'Casa' else 0, 'property_type_Apartment': 1 if tipo == 'Departamento' else 0, 
+        df = datatemplate.append({'House': 1 if tipo == 'Casa' else 0, 'Apartment': 1 if tipo == 'Departamento' else 0, 
             'bathroomtype_shared': 1 if bathroomType == 'Compartido' else 0,'bathroomtype_private':1 if bathroomType == 'Privado' else 0,
-            'room_type_Entire home/apt':1 if tipoRoom == 'Toda la propiedad' else 0,
-            'room_type_Private room': 1 if tipoRoom == 'Hab. Privada' else 0, 'room_type_Shared room': 1 if tipoRoom == 'Hab. compartida' else 0, 
-            'bathrooms':bathrooms,'bedrooms':rooms,'beds':beds,'accommodates':people,'minimum_nights':minimum_nights,'maximum_nights':maximum_nights,
-            'cable':1 if cabletv else 0,'host_is_superhost': 1 if host_is_superhost else 0,
-            'host_identity_verified':1 if host_identity_verified else 0,'number_of_reviews':number_of_reviews,'review_scores_rating':review_scores_rating, 
-            'air_conditioning':1 if air_conditioning else 0,'outdoor':1 if outdoor else 0,'pool':1 if pool else 0,
-            'parking':1 if parking else 0,'tv':1 if tv else 0,'internet':1 if internet else 0,'white_goods':1 if white_goods else 0,'gym':1 if gym else 0,
-            'pet_friendly':1 if pet_friendly else 0,'dishes_silverware':1 if dishes_silverware else 0,'essentials':1 if essentials else 0,'grill':1 if grill else 0,
-            'kitchen':1 if kitchen else 0,            
-            'heating':1 if heating else 0,'elevator':1 if elevator else 0,
-            'refrigerator':1 if refrigerator else 0,'freezer':1 if freezer else 0,'phone_verification':1 if phone_verification else 0,'email_verification':1 if email_verification else 0,            
-            'host_days_active':host_days_active
+            'Entire home/apt':1 if tipoRoom == 'Toda la propiedad' else 0,
+            'Private room': 1 if tipoRoom == 'Hab. Privada' else 0, 
+            'Shared room': 1 if tipoRoom == 'Hab. compartida' else 0, 
+            'bathrooms':bathrooms,'bedrooms':rooms,'accommodates':people,'minimum_nights':minimum_nights,'maximum_nights':maximum_nights,            
+            'host_identity_verified':1 if host_identity_verified else 0,
+            'review_scores_rating':review_scores_rating, 
+            'air_conditioning':1 if air_conditioning else 0,
+            'pool':1 if pool else 0,
+            'parking':1 if parking else 0,'tv':1 if tv else 0,'internet':1 if internet else 0,'gym':1 if gym else 0,
+            'pet_friendly':1 if pet_friendly else 0,
+            'grill':1 if grill else 0,            
+            'elevator':1 if elevator else 0
             }, ignore_index=True)
 
         df = df.fillna(0)
-        df['neighbourhood_cleansed_'+barrio] = 1
+        df[barrio] = 1
         df = df.astype(int, copy=False)
         df['review_scores_rating'] = df['review_scores_rating'].astype(float)
         df['review_scores_rating'] = review_scores_rating 
@@ -113,10 +116,7 @@ def createStart():
 
         c = cols[1]
         with c:
-            beds= st.slider('¿Cantidad de camas?', 1, 10, 1)
-
-        ##acommodates hay que sacarla
-        people = st.slider('¿Cuantas personas?', 1, 10, 1)
+             people = st.slider('¿Cuantas personas?', 1, 10, 1)
 
         cols = st.columns(2)
         c = cols[0]
@@ -141,46 +141,32 @@ def createStart():
             cols = st.columns(2)
             c = cols[0]
             with c:
-                    tv = st.checkbox('TV')
-                    cabletv = st.checkbox('TV por Cable')
+                    tv = st.checkbox('TV')                    
                     internet = st.checkbox('Internet')
                     grill = st.checkbox('Parrilla')
                     parking = st.checkbox('Parking')
                     pool = st.checkbox('Piscina')
-                    elevator = st.checkbox('Ascensor')
-                    pet_friendly = st.checkbox('Pet Friendly')
-                    gym = st.checkbox('Gimnasio')
-                    outdoor = st.checkbox('Exteriores (Jardin/Parque/Balcón)')                    
+                    
             c = cols[1]
             with c:        
-                    heating = st.checkbox('Calefacción')
-                    essentials = st.checkbox('Escenciales')
-                    kitchen = st.checkbox('Cocina')
-                    white_goods = st.checkbox('Electr. línea blanca')
-                    dishes_silverware = st.checkbox('Vajilla')                
                     air_conditioning = st.checkbox('Aire acondicionado')
-                    refrigerator = st.checkbox('Heladera')
-                    freezer = st.checkbox('Freezer')    
+                    elevator = st.checkbox('Ascensor')
+                    pet_friendly = st.checkbox('Pet Friendly')
+                    gym = st.checkbox('Gimnasio')                    
 
         with st.expander(label='Sobre el host:', expanded=True):
             cols = st.columns(2)
             c = cols[0]
             with c:
-                host_is_superhost = st.checkbox('Super host')
-                host_days_active = st.slider('¿Cantidad de meses activo?', 0, 120, 1)    
-                number_of_reviews= st.slider('¿Cantidad reseñas?', 0, 10000, 1)       
+                host_identity_verified = st.checkbox('Identidad verificada')
             c = cols[1]
             with c:   
-                host_identity_verified = st.checkbox('Identidad verificada')
-                phone_verification = st.checkbox('Teléfono verificado')
-                email_verification = st.checkbox('Email verificado')
                 review_scores_rating= st.slider('¿Puntuación?', 0.0, 5.0, 0.1)        
     submitted = form.form_submit_button("Estimar")
     if submitted:
-        predict(tipo,bathroomType,tipoRoom,bathrooms,rooms,beds,people,minimum_nights,maximum_nights,cabletv,barrio,host_is_superhost,number_of_reviews,host_identity_verified,
-    review_scores_rating,air_conditioning,outdoor,pool,parking,pet_friendly,internet,white_goods,gym,kitchen,refrigerator,dishes_silverware,essentials,grill,email_verification,
-    host_days_active * 30,    
-    heating,elevator,freezer,phone_verification,tv)
+        predict(tipo,bathroomType,tipoRoom,bathrooms,rooms,people,minimum_nights,maximum_nights,barrio,host_identity_verified,
+    review_scores_rating,air_conditioning,pool,parking,pet_friendly,internet,gym,grill,    
+    elevator,tv)
 
 st.set_page_config(layout="wide")
 
