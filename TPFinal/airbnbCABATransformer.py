@@ -129,9 +129,7 @@ class AirbnbCABATransformer(BaseEstimator, TransformerMixin):
         return data
     
     def _processPrice(self,data):
-        data.price = data.price.str[1:-3]
-        data.price = data.price.str.replace(",", "")
-        data.price = data.price.astype('int64')
+        data['price'] = data['price'].astype('string').str.replace(',', '').str.replace('\$', '').astype('float64').astype('int64')
         return data
     
     def _processPropertyType(self,data):
@@ -215,14 +213,3 @@ class AirbnbCABATransformer(BaseEstimator, TransformerMixin):
     def _processGetdummies(self,data):
         data = pd.get_dummies(data)
         return data
-
-        
-
-
-
-
-
-
-
-
-
