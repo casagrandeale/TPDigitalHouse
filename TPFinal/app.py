@@ -27,6 +27,7 @@ def loadModel():
         mfile = BytesIO(requests.get(filename).content)
         model = joblib.load(mfile)
         #model = joblib.load(filename)
+        #data = pd.read_csv('https://raw.githubusercontent.com/casagrandeale/TPDigitalHouse/main/TPFinal/datatemplate.csv')
         #data = pd.read_csv('datatemplate.csv')
         data = pd.read_pickle("https://raw.githubusercontent.com/casagrandeale/TPDigitalHouse/main/TPFinal/datatemplate.pkl")
         data.drop(['price'],axis=1,inplace=True)
@@ -63,9 +64,6 @@ def predict(tipo,bathroomType,tipoRoom,bathrooms,rooms,people,minimum_nights,max
 
         df = df.fillna(0)
         df[barrio] = 1
-        df = df.astype(int, copy=False)
-        df['review_scores_rating'] = df['review_scores_rating'].astype(float)
-        df['review_scores_rating'] = review_scores_rating 
         
         # Get the model's prediction
         pred = loaded_model.predict(df)
