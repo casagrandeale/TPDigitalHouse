@@ -44,7 +44,7 @@ class AirbnbCABATransformer(BaseEstimator, TransformerMixin):
         return data
 
     def _dropNotUsedColumns(self,data):        
-        data = data.drop(['id','source','availability_30','availability_60','availability_90','availability_365','listing_url','scrape_id','last_scraped','picture_url','host_id','host_url','host_name',
+        data = data.drop(['id','source','availability_30','availability_60','availability_90','availability_365','listing_url','beds','scrape_id','last_scraped','picture_url','host_id','host_url','host_name',
             'host_location','host_neighbourhood','neighborhood_overview','neighbourhood','neighbourhood_group','neighbourhood_group_cleansed',
             'host_thumbnail_url','host_about','host_response_time','host_has_profile_pic',
             'host_acceptance_rate','host_thumbnail_url','host_picture_url','host_listings_count',
@@ -203,7 +203,6 @@ class AirbnbCABATransformer(BaseEstimator, TransformerMixin):
         data['elevator'] = data['elevator'].astype(int)
         data['host_identity_verified'] = data['host_identity_verified'].astype(int)
         data['accommodates'] = data['accommodates'].astype(int)
-        data['beds'] = data['beds'].astype(int)
         data['maximum_nights'] = data['maximum_nights'].astype(int)
         data['review_scores_rating'] = data['review_scores_rating'].astype("float32")
         return data
