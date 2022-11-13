@@ -22,7 +22,6 @@ class AirbnbCABATransformer(BaseEstimator, TransformerMixin):
         data = self._processOutLiers(data)
        
         data = self._processAmenities(data)
-        data = self._processVerifications(data)
                 
         data = data.fillna(0)
 
@@ -38,27 +37,28 @@ class AirbnbCABATransformer(BaseEstimator, TransformerMixin):
         data.columns = data.columns.str.replace('room_type_Shared room', 'Shared room')
         data.columns = data.columns.str.replace('room_type_Entire home/apt', 'Entire home/apt')
         
-        data.loc[data['phone_verification']==1,"host_identity_verified"] = 1
-        data.loc[data['email_verification']==1,"host_identity_verified"] = 1
-        data = data.drop(['phone_verification','email_verification'], axis=1)
-
         datatemplate = data.iloc[1:2]
+        datatemplate.to_pickle("datatemplate.pkl", protocol=2)
         datatemplate.to_csv("datatemplate.csv")
 
         return data
 
     def _dropNotUsedColumns(self,data):        
-        data = data.drop(['id','index','host_is_superhost','beds'], axis=1)
-        data = data.drop(['source','instant_bookable'], axis=1)
-        data = data.drop(['availability_30','availability_60','availability_90','availability_365','listing_url','scrape_id','last_scraped','picture_url','host_id','host_url','host_name'], axis=1)
-        data = data.drop(['host_location','host_neighbourhood','reviews_per_month','neighborhood_overview','neighbourhood','neighbourhood_group_cleansed'], axis=1)
-        data = data.drop(['host_has_profile_pic','host_response_rate','host_thumbnail_url','host_about','host_response_time','host_response_rate','host_acceptance_rate','host_thumbnail_url'], axis=1)
-        data = data.drop(['host_picture_url','host_listings_count', 'minimum_minimum_nights','maximum_minimum_nights','minimum_maximum_nights','maximum_maximum_nights'], axis=1)
-        data = data.drop(['minimum_nights_avg_ntm','maximum_nights_avg_ntm','calendar_updated', 'calendar_last_scraped','has_availability','host_total_listings_count'], axis=1)
-        data = data.drop(['number_of_reviews_ltm','number_of_reviews_l30d','first_review','last_review'], axis=1)
-        data = data.drop(['review_scores_location','review_scores_accuracy','review_scores_cleanliness'], axis=1)
-        data = data.drop(['review_scores_checkin','review_scores_communication','review_scores_value','license','calculated_host_listings_count','calculated_host_listings_count_entire_homes'], axis=1)
-        data = data.drop(['calculated_host_listings_count_private_rooms','calculated_host_listings_count_shared_rooms'], axis=1)
+        data = data.drop(['id','source','availability_30','availability_60','availability_90','availability_365','listing_url','scrape_id','last_scraped','picture_url','host_id','host_url','host_name',
+            'host_location','host_neighbourhood','neighborhood_overview','neighbourhood','neighbourhood_group','neighbourhood_group_cleansed',
+            'host_thumbnail_url','host_about','host_response_time','host_has_profile_pic',
+            'host_acceptance_rate','host_thumbnail_url','host_picture_url','host_listings_count',
+            'minimum_minimum_nights','maximum_minimum_nights','minimum_maximum_nights','maximum_maximum_nights',
+            'minimum_nights_avg_ntm','maximum_nights_avg_ntm','calendar_updated', 'calendar_last_scraped',
+            'has_availability','host_response_time','host_total_listings_count','reviews_per_month',
+            'number_of_reviews_ltm','number_of_reviews_l30d','first_review','last_review','instant_bookable',
+            'review_scores_location','review_scores_accuracy','review_scores_cleanliness','host_response_rate',
+                        'review_scores_checkin','review_scores_communication','review_scores_value',
+                        'license','calculated_host_listings_count','calculated_host_listings_count_entire_homes',
+            'calculated_host_listings_count_private_rooms','calculated_host_listings_count_shared_rooms'
+            ], axis=1)
+        data = data.reset_index()
+        data = data.drop(['index'],axis=1)
         return data
 
     def _extractBathRoomType(self,row):  
@@ -176,12 +176,6 @@ class AirbnbCABATransformer(BaseEstimator, TransformerMixin):
                 data.loc[data.amenities.str.contains(x,case=False,na=False),feat["feature"]] = 1 
         return data
 
-    def _processVerifications(self,data):
-        data.loc[data.host_verifications.str.contains('phone',case=False,na=False),'phone_verification'] = 1 
-        data.loc[data.host_verifications.str.contains('work_email',case=False,na=False),'email_verification'] = 1 
-        data.loc[data.host_verifications.str.contains('email',case=False,na=False),'email_verification'] = 1        
-        return data
-
     def _processNeighbourhood(self,data):
         data.loc[data.neighbourhood_cleansed == "Dique 1","neighbourhood_cleansed"] = "Puerto Madero"
         data.loc[data.neighbourhood_cleansed == "Dique 4","neighbourhood_cleansed"] = "Puerto Madero"
@@ -204,10 +198,14 @@ class AirbnbCABATransformer(BaseEstimator, TransformerMixin):
         data['internet'] = data['internet'].astype(int)
         data['gym'] = data['gym'].astype(int)
         data['pet_friendly'] = data['pet_friendly'].astype(int)
+        data['pet_friendly'] = data['pet_friendly'].astype(int)
         data['grill'] = data['grill'].astype(int)
         data['elevator'] = data['elevator'].astype(int)
-        data['phone_verification'] = data['phone_verification'].astype(int)
-        data['email_verification'] = data['email_verification'].astype(int)
+        data['host_identity_verified'] = data['host_identity_verified'].astype(int)
+        data['accommodates'] = data['accommodates'].astype(int)
+        data['beds'] = data['beds'].astype(int)
+        data['maximum_nights'] = data['maximum_nights'].astype(int)
+        data['review_scores_rating'] = data['review_scores_rating'].astype("float32")
         return data
 
     def _processGetdummies(self,data):

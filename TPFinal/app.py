@@ -27,9 +27,9 @@ def loadModel():
         mfile = BytesIO(requests.get(filename).content)
         model = joblib.load(mfile)
         #model = joblib.load(filename)
-        data = pd.read_csv('https://raw.githubusercontent.com/casagrandeale/TPDigitalHouse/main/TPFinal/datatemplate.csv')
         #data = pd.read_csv('datatemplate.csv')
-        data.drop(['Unnamed: 0','price'],axis=1,inplace=True)
+        data = pd.read_pickle("https://raw.githubusercontent.com/casagrandeale/TPDigitalHouse/main/TPFinal/datatemplate.pkl")
+        data.drop(['price'],axis=1,inplace=True)
         return model,data    
 
 def st_shap(plot, height=None):
