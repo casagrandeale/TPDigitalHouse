@@ -8,7 +8,7 @@ import requests
 
 loaded_model = None
 datatemplate = None
-filename = "https://raw.githubusercontent.com/casagrandeale/TPDigitalHouse/main/TPFinal/model.sav"
+filename = "https://raw.githubusercontent.com/casagrandeale/TPDigitalHouse/main/TPFinal/model2.sav"
 #filename = "model.sav"
 
 @st.cache
@@ -176,8 +176,3 @@ loaded_model,datatemplate =  loadModel()
 maincontainer = st.empty()
 
 createStart()
-
-
-
-
-
