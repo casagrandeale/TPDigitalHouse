@@ -62,8 +62,8 @@ def predict(tipo,bathroomType,tipoRoom,bathrooms,rooms,people,minimum_nights,max
             'elevator':1 if elevator else 0
             }, ignore_index=True)
 
-        df = df.fillna(0)
         df[barrio] = 1
+        df = df.fillna(0).astype(int)
         
         # Get the model's prediction
         pred = loaded_model.predict(df)
