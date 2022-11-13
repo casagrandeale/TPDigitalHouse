@@ -8,7 +8,7 @@ import requests
 
 loaded_model = None
 datatemplate = None
-filename = "https://raw.githubusercontent.com/casagrandeale/TPDigitalHouse/main/model2.sav"
+filename = "https://raw.githubusercontent.com/casagrandeale/TPDigitalHouse/main/TPFinal/model2.sav"
 #filename = "model2.sav"
 
 @st.cache
@@ -26,9 +26,9 @@ def loadModel():
         mfile = BytesIO(requests.get(filename).content)
         model = joblib.load(mfile)
         #model = joblib.load(filename)
-        #data = pd.read_csv('https://raw.githubusercontent.com/casagrandeale/TPDigitalHouse/main/datatemplate.csv')
+        #data = pd.read_csv('https://raw.githubusercontent.com/casagrandeale/TPDigitalHouse/main/TPFinal/datatemplate.csv')
         #data = pd.read_csv('datatemplate.csv')
-        data = pd.read_pickle("https://raw.githubusercontent.com/casagrandeale/TPDigitalHouse/main//datatemplate.pkl")
+        data = pd.read_pickle("https://raw.githubusercontent.com/casagrandeale/TPDigitalHouse/main/TPFinal/datatemplate.pkl")
         data.drop(['price'],axis=1,inplace=True)
         return model,data    
 
